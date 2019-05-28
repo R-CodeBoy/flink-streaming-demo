@@ -18,7 +18,7 @@ package com.dataartisans.flink_demo.datatypes
 
 import java.util.Locale
 
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 /**
@@ -97,3 +97,4 @@ object TaxiRide {
  * @param lat The latitude of the point.
  */
 case class GeoPoint(lon: Double, lat: Double)
+

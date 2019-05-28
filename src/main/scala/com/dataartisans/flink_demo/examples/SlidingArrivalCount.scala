@@ -44,6 +44,8 @@ object SlidingArrivalCount {
 
   def main(args: Array[String]) {
 
+    System.setProperty("user.timezone", "GMT")
+
     // input parameters
     val data = "./data/nycTaxiData.gz"
     val maxServingDelay = 60
@@ -52,11 +54,11 @@ object SlidingArrivalCount {
     // window parameters
     val countWindowLength = 15 // window size in min
     val countWindowFrequency =  5 // window trigger interval in min
-    val earlyCountThreshold = 50
+    val earlyCountThreshold = 40
 
     // Elasticsearch parameters
-    val writeToElasticsearch = false // set to true to write results to Elasticsearch
-    val elasticsearchHost = "" // look-up hostname in Elasticsearch log output
+    val writeToElasticsearch = true // set to true to write results to Elasticsearch
+    val elasticsearchHost = "127.0.0.1" // look-up hostname in Elasticsearch log output
     val elasticsearchPort = 9300
 
 
@@ -83,7 +85,7 @@ object SlidingArrivalCount {
       .keyBy(_._1)
       // define sliding window on keyed streams
       .timeWindow(Time.minutes(countWindowLength), Time.minutes(countWindowFrequency))
-      // count events in window
+      // count events in window,this is the apply function
       .apply { (
                  cell: Int,
                  window: TimeWindow,
@@ -97,8 +99,8 @@ object SlidingArrivalCount {
       .map( r => ( r._1, r._2, NycGeoUtils.getGridCellCenter(r._1), r._3 ) )
 
     // print to console
-    cntByLocation
-      .print()
+//    cntByLocation
+//      .print()
 
     if (writeToElasticsearch) {
       // write to Elasticsearch

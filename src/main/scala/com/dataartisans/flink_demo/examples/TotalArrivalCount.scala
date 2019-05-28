@@ -41,14 +41,16 @@ object TotalArrivalCount {
 
   def main(args: Array[String]) {
 
+    System.setProperty("user.timezone", "GMT")
+
     // input parameters
     val data = "./data/nycTaxiData.gz"
     val maxServingDelay = 60
     val servingSpeedFactor = 600f
 
     // Elasticsearch parameters
-    val writeToElasticsearch = false // set to true to write results to Elasticsearch
-    val elasticsearchHost = "" // look-up hostname in Elasticsearch log output
+    val writeToElasticsearch = true // set to true to write results to Elasticsearch
+    val elasticsearchHost = "127.0.0.1" // look-up hostname in Elasticsearch log output
     val elasticsearchPort = 9300
 
 
@@ -84,8 +86,8 @@ object TotalArrivalCount {
       .map( r => (r._1, r._2, NycGeoUtils.getGridCellCenter(r._1), r._3 ) )
 
     // print to console
-    cntByLocation
-      .print()
+//    cntByLocation
+//      .print()
 
     if (writeToElasticsearch) {
       // write to Elasticsearch
@@ -102,7 +104,7 @@ object TotalArrivalCount {
       host,
       port,
       "elasticsearch",
-      "nyc-idx",
+      "nyc-idx-total-arrival",
       "popular-locations") {
 
     override def insertJson(r: (Int, Long, GeoPoint, Int)): Map[String, AnyRef] = {

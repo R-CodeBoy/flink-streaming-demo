@@ -55,11 +55,11 @@ object EarlyArrivalCount {
     // window parameters
     val countWindowLength = 15 // window size in min
     val countWindowFrequency =  5 // window trigger interval in min
-    val earlyCountThreshold = 50
+    val earlyCountThreshold = 40
 
     // Elasticsearch parameters
-    val writeToElasticsearch = false // set to true to write results to Elasticsearch
-    val elasticsearchHost = "" // look-up hostname in Elasticsearch log output
+    val writeToElasticsearch = true // set to true to write results to Elasticsearch
+    val elasticsearchHost = "127.0.0.1" // look-up hostname in Elasticsearch log output
     val elasticsearchPort = 9300
 
 
@@ -101,8 +101,8 @@ object EarlyArrivalCount {
       .map( r => ( r._1, r._2, NycGeoUtils.getGridCellCenter(r._1), r._3 ) )
 
     // print to console
-    cntByLocation
-      .print()
+//    cntByLocation
+//      .print()
 
     if (writeToElasticsearch) {
       // write to Elasticsearch
@@ -122,7 +122,7 @@ object EarlyArrivalCount {
       window: TimeWindow,
       ctx: TriggerContext): TriggerResult = {
 
-      // register event time timer for end of window
+      // register event time timer for end of window,and the onEventTime method will be called
       ctx.registerEventTimeTimer(window.getEnd)
       
       // get current count
@@ -135,7 +135,7 @@ object EarlyArrivalCount {
         TriggerResult.CONTINUE
       }
       else {
-        // trigger count is reached
+        // trigger count is reached and emit the result
         personCnt.update(0)
         TriggerResult.FIRE
       }
@@ -165,7 +165,7 @@ object EarlyArrivalCount {
       host,
       port,
       "elasticsearch",
-      "nyc-idx",
+      "nyc-idx-early-arrival",
       "popular-locations") {
 
     override def insertJson(r: (Int, Long, GeoPoint, Int)): Map[String, AnyRef] = {
